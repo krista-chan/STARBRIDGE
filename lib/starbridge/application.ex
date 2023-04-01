@@ -12,9 +12,9 @@ defmodule Starbridge.Application do
     {:ok, client} = ExIRC.start_link!
 
     client_modules = [
-      {env(:discord_enabled), Starbridge.Discord},
-      {env(:irc_enabled),    {Starbridge.IRC, client}},
-      {env(:matrix_enabled),  Starbridge.Matrix},
+      {env(:discord_enabled, :boolean), Starbridge.Discord},
+      {env(:irc_enabled, :boolean),    {Starbridge.IRC, client}},
+      {env(:matrix_enabled, :boolean),  Starbridge.Matrix},
     ]
 
     children =

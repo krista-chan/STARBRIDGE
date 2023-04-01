@@ -2,6 +2,7 @@ defmodule Starbridge.Env do
   def env(key), do: Application.get_env(:starbridge, key)
 
   def env(key, :int), do: Application.get_env(:starbridge, key) |> to_int
+  def env(key, :boolean), do: !!(Application.get_env(:starbridge, key) |> String.to_existing_atom)
   def env(key, default), do: Application.get_env(:starbridge, key, default)
   def env(key, default, :int), do: Application.get_env(:starbridge, key, default) |> to_int
 

@@ -31,7 +31,7 @@ defmodule Starbridge.MixProject do
     end)
     |> String.split("=")
 
-    run_discord = String.to_existing_atom(val)
+    run_discord = !!String.to_existing_atom(val)
 
     [
       {:nostrum, "~> 0.6.1", runtime: run_discord},
