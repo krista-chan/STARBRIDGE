@@ -1,4 +1,6 @@
-<img src="assets/starbridge_2048w.png" width="256">
+<centre>
+  <img src="assets/starbridge_2048w.png" width="256">
+</centre>
 
 <p style="font-weight: lighter; letter-spacing: .01rem">/stɑɹbɹɪd͡ʒ/</p>
 

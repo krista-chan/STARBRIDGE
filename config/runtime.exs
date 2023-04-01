@@ -11,9 +11,20 @@ config :nostrum,
   ]
 
 config :starbridge,
+  # maybe use enabled string or something idk this is really long
+  # $(client:string enabled:boolean),* $(,)? maybe
+  irc_enabled: env!("IRC_ENABLED", :boolean, false),
+  discord_enabled: env!("DISCORD_ENABLED", :boolean, false),
+  matrix_enabled: env!("MATRIX_ENABLED", :boolean, false),
+
   irc_channels: env!("IRC_CHANNELS", :string!),
   irc_address: env!("IRC_ADDRESS", :string!),
   irc_password: env!("IRC_PASSWORD", :string, ""), # complains when nil, error in ExIRC
   irc_port: env!("IRC_PORT", :integer, 6667),
+
   discord_channels: env!("DISCORD_CHANNELS", :string),
-  matrix_address: env!("MATRIX_ADDRESS", :string)
+
+  matrix_address: env!("MATRIX_ADDRESS", :string),
+  matrix_rooms: env!("MATRIX_ROOMS", :string),
+  matrix_token: env!("MATRIX_TOKEN", :string),
+  matrix_user: env!("MATRIX_USER", :string)

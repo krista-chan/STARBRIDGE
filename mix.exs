@@ -22,8 +22,19 @@ defmodule Starbridge.MixProject do
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
+    ["DISCORD_ENABLED", val] = File.read!(".env")
+    |> String.split(~r/(\n|\r\n)/)
+    |> Enum.find(fn ent ->
+      {k,_v} = String.split(ent, "=")
+      |> List.to_tuple()
+      k == "DISCORD_ENABLED"
+    end)
+    |> String.split("=")
+
+    run_discord = String.to_existing_atom(val)
+
     [
-      {:nostrum, "~> 0.6.1"},
+      {:nostrum, "~> 0.6.1", runtime: run_discord},
       {:exirc, "~> 2.0.0"},
       {:dotenvy, "~> 0.7.0"},
       {:polyjuice_client, "~> 0.4.4"},

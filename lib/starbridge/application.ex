@@ -10,23 +10,19 @@ defmodule Starbridge.Application do
     # :dbg.p(:all, :c)
 
     {:ok, client} = ExIRC.start_link!
-    {:ok, pid} =
-      Polyjuice.Client.start_link(
-        env(:matrix_address),
-        access_token: env(:matrix_token),
-        user_id: env(:matrix_user),
-        storage: Polyjuice.Client.Storage.Ets.open(),
-        handler: self()
-      )
 
-    children = [
-      Starbridge.Discord,
-      {Starbridge.IRC, client},
-      {Starbridge.Matrix, pid},
-      Starbridge.Server,
+    client_modules = [
+      {env(:discord_enabled), Starbridge.Discord},
+      {env(:irc_enabled),    {Starbridge.IRC, client}},
+      {env(:matrix_enabled),  Starbridge.Matrix},
     ]
+
+    children =
+      Enum.filter(client_modules, fn {enabled, _child} -> enabled end)
+      |> Enum.map(fn {_enabled, child} -> child end)
+
     opts = [strategy: :one_for_one, name: Starbridge.Supervisor]
 
-    Supervisor.start_link(children, opts)
+    Supervisor.start_link([Starbridge.Server | children], opts)
   end
 end
