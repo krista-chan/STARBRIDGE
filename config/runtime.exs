@@ -17,6 +17,8 @@ config :starbridge,
   discord_enabled: env!("DISCORD_ENABLED", :string, false),
   matrix_enabled: env!("MATRIX_ENABLED", :string, false),
 
+  irc_recast: env!("IRC_RECAST", :string, "") |> IO.inspect,
+
   irc_channels: env!("IRC_CHANNELS", :string!),
   irc_address: env!("IRC_ADDRESS", :string!),
   irc_password: env!("IRC_PASSWORD", :string, ""), # complains when nil, error in ExIRC

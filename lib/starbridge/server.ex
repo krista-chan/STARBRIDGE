@@ -1,12 +1,13 @@
 defmodule Starbridge.Server do
   use GenServer
+  import Starbridge.Env
   require Starbridge.Logger, as: Logger
 
   # association argument is a map of %{channel_name: [{:platform, channel_identifier}]}?
-  def register(name, client) do
+  def register(name, server) do
     Logger.debug(Atom.to_string(name) <> " client registered")
 
-    GenServer.cast(__MODULE__, {:register_client, %{name: name, client: client}})
+    GenServer.cast(__MODULE__, {:register_client, %{name: name, server: server}})
   end
 
   def send_message(platform, channel, content, info) do
@@ -14,6 +15,10 @@ defmodule Starbridge.Server do
   end
 
   def start_link(_) do
+    # map of %{{atom, string} => [{atom, string}]}
+    # key: {:platform, channel_ident}
+    # val: [typeof key]
+
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end
 
@@ -23,13 +28,25 @@ defmodule Starbridge.Server do
   end
 
   @impl true
-  def handle_cast({:register_client, %{name: name, client: client}}, state) do
-    {:noreply, Map.put(state, name, client)}
+  def handle_cast({:register_client, %{name: name, server: server}}, state) do
+    updated_stuff = state
+    |> Map.put(name, server)
+    |> Map.put(:recasts, %{{:irc, "#gen"} => [{:irc, "#foxes"}, {:discord, ""}]})
+    {:noreply, updated_stuff}
   end
 
   @impl true
-  def handle_cast({:message, {_platform, _channel, _content, _info}}, state) do
-    # IO.inspect({platform, content})
+  def handle_cast({:message, {platform, channel, content, info}}, state) do
+    # --- test code do not use
+    recast = state.recasts[{platform, channel}][:irc]
+    GenServer.cast(Starbridge.IRC, {:send_message, {recast, "<#{info.nick}#{channel}> " <> content}})
+
     {:noreply, state}
+  end
+
+  def load_recasts do
+    {:ok, irc_recast} = Jason.decode(env(:irc_recast))
+
+    irc_recast
   end
 end

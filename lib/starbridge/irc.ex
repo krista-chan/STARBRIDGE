@@ -5,7 +5,7 @@ defmodule Starbridge.IRC do
   use GenServer
 
   def start_link(client) do
-    GenServer.start_link(__MODULE__, client)
+    GenServer.start_link(__MODULE__, client, name: __MODULE__)
   end
 
   @impl true
@@ -13,7 +13,7 @@ defmodule Starbridge.IRC do
     ExIRC.Client.add_handler client, self()
     ExIRC.Client.connect! client, env(:irc_address), env(:irc_port, :int)
 
-    Server.register(:irc, client)
+    Server.register(:irc, __MODULE__)
     {:ok, client}
   end
 
@@ -76,6 +76,12 @@ defmodule Starbridge.IRC do
     {:noreply, client}
   end
 
+  @impl true
+  def handle_cast({:send_message, {channel, content}}, client) do
+    send_message(client, channel, content)
+    {:noreply, client}
+  end
+
   def parse_channels(input) do
     input
     |> String.split(",")
@@ -97,5 +103,9 @@ defmodule Starbridge.IRC do
 
   def join_channel(client, name, pass) do
     ExIRC.Client.join(client, name, pass)
+  end
+
+  def send_message(client, channel, content) do
+    ExIRC.Client.msg(client, :privmsg, channel, content)
   end
 end

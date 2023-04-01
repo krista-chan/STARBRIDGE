@@ -4,7 +4,7 @@ defmodule Starbridge.Discord do
   require Starbridge.Logger, as: Logger
 
   def start_link do
-    Consumer.start_link(__MODULE__)
+    Consumer.start_link(__MODULE__, name: __MODULE__)
   end
 
   def handle_event({:READY, client, _}) do
