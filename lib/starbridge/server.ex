@@ -9,8 +9,8 @@ defmodule Starbridge.Server do
     GenServer.cast(__MODULE__, {:register_client, {name, server}})
   end
 
-  def send_message(platform, channel, content, nick) do
-    GenServer.cast(__MODULE__, {:message, {platform, channel, content, nick}})
+  def send_message(platform, serv_name, channel, content, nick) do
+    GenServer.cast(__MODULE__, {:message, {platform, serv_name, channel, content, nick}})
   end
 
   def start_link(_) do
@@ -32,28 +32,35 @@ defmodule Starbridge.Server do
   end
 
   @impl true
-  def handle_cast({:message, {platform, channel, content, nick}}, state) do
-    state.recasts
-    |> Map.get({platform, channel})
-    |> recast_messages(state.clients, content, nick)
+  def handle_cast({:message, {platform, serv_name, {channel_name, channel_id}, content, nick}}, state) do
+    recasts = state.recasts
+    |> Map.get({platform, channel_id})
+
+    if !is_nil(recasts) do
+      recast_messages(recasts, state.clients, serv_name, channel_name, content, nick)
+    end
 
     {:noreply, state}
   end
 
-  def recast_messages(targets, clients, content, nick) do
+  def recast_messages(targets, clients, serv_name, channel, content, nick) do
     all_registered = Enum.flat_map(clients, fn {registered_platform, _} ->
-      Enum.map(targets, fn {platform, _} ->
+      Enum.filter(targets, fn {platform, _} ->
         registered_platform == platform
       end)
     end)
-    |> Enum.all?()
 
-    if all_registered do
-      Enum.map(targets, fn {platform, channel} ->
-        {_, server} = Enum.find(clients, fn {p, _} -> p == platform end)
-        GenServer.cast(server, {:send_message, {channel, content, nick}})
-      end)
-    else
-    end
+    serv_name_trunc = serv_name |> String.slice(0..20)
+    serv_name =
+      if serv_name_trunc |> String.length() == serv_name |> String.length() do
+        serv_name
+      else
+        serv_name_trunc <> "..."
+      end
+
+    Enum.map(all_registered, fn {platform, target_channel} ->
+      {_, server} = Enum.find(clients, fn {p, _} -> p == platform end)
+      GenServer.cast(server, {:send_message, {serv_name, channel, target_channel, content, nick}})
+    end)
   end
 end

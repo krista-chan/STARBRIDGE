@@ -30,8 +30,9 @@ defmodule Starbridge.IRC do
     {:noreply, client}
   end
 
-  def handle_info(:disconnected, client) do
-    Logger.debug("Disconnected")
+  def handle_info({:received, msg, info, channel}, client) do
+    Logger.debug("<#{info.nick}#{channel} @ #{env(:irc_address)}> #{msg}")
+    Server.send_message("irc", env(:irc_address), {channel, channel}, msg, info.nick)
     {:noreply, client}
   end
 
@@ -59,27 +60,14 @@ defmodule Starbridge.IRC do
     {:noreply, client}
   end
 
-  def handle_info({:names_list, channel, names}, client) do
-    Logger.debug("#{channel} has users #{names}")
-    {:noreply, client}
-  end
-
-  def handle_info({:received, msg, info, channel}, client) do
-    Logger.debug("<#{info.nick}#{channel} @ #{env(:irc_address)}> #{msg}")
-    Server.send_message("irc", channel, msg, info.nick)
-    {:noreply, client}
-  end
-
-  def handle_info(msg, client) do
-    Logger.debug("Recv unknown message")
-    IO.inspect msg
+  def handle_info(_, client) do
     {:noreply, client}
   end
 
   @impl true
-  def handle_cast({:send_message, {channel, content, nick}}, client) do
-    cont = "<#{nick} #{channel}> " <> content
-    send_message(client, channel, cont)
+  def handle_cast({:send_message, {serv_name, src_channel, target_channel, content, nick}}, client) do
+    cont = "<#{nick} #{src_channel} @ #{serv_name}> " <> content
+    send_message(client, target_channel, cont)
     {:noreply, client}
   end
 
