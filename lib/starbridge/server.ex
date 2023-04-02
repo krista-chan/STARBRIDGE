@@ -1,25 +1,23 @@
 defmodule Starbridge.Server do
   use GenServer
-  import Starbridge.Env
   require Starbridge.Logger, as: Logger
 
   # association argument is a map of %{channel_name: [{:platform, channel_identifier}]}?
   def register(name, server) do
-    Logger.debug(Atom.to_string(name) <> " client registered")
+    Logger.debug(name <> " client registered")
 
-    GenServer.cast(__MODULE__, {:register_client, %{name: name, server: server}})
+    GenServer.cast(__MODULE__, {:register_client, {name, server}})
   end
 
-  def send_message(platform, channel, content, info) do
-    GenServer.cast(__MODULE__, {:message, {platform, channel, content, info}})
+  def send_message(platform, channel, content, nick) do
+    GenServer.cast(__MODULE__, {:message, {platform, channel, content, nick}})
   end
 
   def start_link(_) do
-    # map of %{{atom, string} => [{atom, string}]}
-    # key: {:platform, channel_ident}
-    # val: [typeof key]
+    recasts = File.read!(".recast")
+    recasts = Starbridge.Util.parse_recast(recasts)
 
-    GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
+    GenServer.start_link(__MODULE__, %{ recasts: recasts, clients: [] }, name: __MODULE__)
   end
 
   @impl true
@@ -28,25 +26,34 @@ defmodule Starbridge.Server do
   end
 
   @impl true
-  def handle_cast({:register_client, %{name: name, server: server}}, state) do
-    updated_stuff = state
-    |> Map.put(name, server)
-    |> Map.put(:recasts, %{{:irc, "#gen"} => [{:irc, "#foxes"}, {:discord, ""}]})
-    {:noreply, updated_stuff}
+  def handle_cast({:register_client, {name, server}}, state) do
+    registered_client = Map.update(state, :clients, nil, fn clients -> [ {name, server} | clients ] end)
+    {:noreply, registered_client}
   end
 
   @impl true
-  def handle_cast({:message, {platform, channel, content, info}}, state) do
-    # --- test code do not use
-    recast = state.recasts[{platform, channel}][:irc]
-    GenServer.cast(Starbridge.IRC, {:send_message, {recast, "<#{info.nick}#{channel}> " <> content}})
+  def handle_cast({:message, {platform, channel, content, nick}}, state) do
+    state.recasts
+    |> Map.get({platform, channel})
+    |> recast_messages(state.clients, content, nick)
 
     {:noreply, state}
   end
 
-  def load_recasts do
-    {:ok, irc_recast} = Jason.decode(env(:irc_recast))
+  def recast_messages(targets, clients, content, nick) do
+    all_registered = Enum.flat_map(clients, fn {registered_platform, _} ->
+      Enum.map(targets, fn {platform, _} ->
+        registered_platform == platform
+      end)
+    end)
+    |> Enum.all?()
 
-    irc_recast
+    if all_registered do
+      Enum.map(targets, fn {platform, channel} ->
+        {_, server} = Enum.find(clients, fn {p, _} -> p == platform end)
+        GenServer.cast(server, {:send_message, {channel, content, nick}})
+      end)
+    else
+    end
   end
 end

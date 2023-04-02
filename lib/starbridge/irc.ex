@@ -13,7 +13,7 @@ defmodule Starbridge.IRC do
     ExIRC.Client.add_handler client, self()
     ExIRC.Client.connect! client, env(:irc_address), env(:irc_port, :int)
 
-    Server.register(:irc, __MODULE__)
+    Server.register("irc", __MODULE__)
     {:ok, client}
   end
 
@@ -38,7 +38,7 @@ defmodule Starbridge.IRC do
   def handle_info(:logged_in, client) do
     Logger.debug("Logged in")
 
-    channels = Starbridge.IRC.parse_channels env(:irc_channels)
+    channels = Starbridge.Util.IRC.parse_channels env(:irc_channels)
     Enum.map(channels, fn {channel, pass} -> join_channel(client, channel, pass) end)
 
     {:noreply, client}
@@ -66,7 +66,7 @@ defmodule Starbridge.IRC do
 
   def handle_info({:received, msg, info, channel}, client) do
     Logger.debug("<#{info.nick}#{channel} @ #{env(:irc_address)}> #{msg}")
-    Server.send_message(:irc, channel, msg, info)
+    Server.send_message("irc", channel, msg, info.nick)
     {:noreply, client}
   end
 
@@ -77,24 +77,10 @@ defmodule Starbridge.IRC do
   end
 
   @impl true
-  def handle_cast({:send_message, {channel, content}}, client) do
-    send_message(client, channel, content)
+  def handle_cast({:send_message, {channel, content, nick}}, client) do
+    cont = "<#{nick} #{channel}> " <> content
+    send_message(client, channel, cont)
     {:noreply, client}
-  end
-
-  def parse_channels(input) do
-    input
-    |> String.split(",")
-    |> Enum.map(fn i -> parse_channel(i) end)
-  end
-
-  def parse_channel("#" <> name), do: {"#" <> name, nil}
-  def parse_channel("(" <> data) do
-    {channel, pass} = String.replace(data, ~r/[()]/, "")
-    |> String.split(~r/\s+/)
-    |> List.to_tuple
-
-    {channel, pass}
   end
 
   def join_channel(client, name, nil) do

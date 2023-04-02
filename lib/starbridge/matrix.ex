@@ -24,7 +24,7 @@ defmodule Starbridge.Matrix do
 
   @impl true
   def init(client) do
-    Server.register(:matrix, __MODULE__)
+    Server.register("matrix", __MODULE__)
 
     env(:matrix_rooms)
     |> String.split(",")

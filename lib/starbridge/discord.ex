@@ -9,7 +9,7 @@ defmodule Starbridge.Discord do
 
   def handle_event({:READY, client, _}) do
     Logger.debug("Logged in as #{client.user.username}##{client.user.discriminator} (#{client.user.id})")
-    Server.register(:discord, client.user)
+    Server.register("discord", client.user)
   end
 
   def handle_event({:MESSAGE_CREATE, msg, _}) do
