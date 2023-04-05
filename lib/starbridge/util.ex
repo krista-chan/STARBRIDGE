@@ -16,11 +16,11 @@ defmodule Starbridge.Util do
       fn {{_, src_channel}, rhs} -> {src_channel, rhs} end
       )
     |> Enum.map(
-      fn {p, channels} ->
+      fn {platform, channels} ->
         Enum.group_by(
           channels,
-          fn {c, _} -> {p, c} end,
-          fn {_, r} -> r end
+          fn {channel, _} -> {platform, channel} end,
+          fn {_, target} -> target end
         )
       end)
     |> Enum.reduce(fn e, acc -> Map.merge(e, acc) end)
@@ -37,7 +37,6 @@ defmodule Starbridge.Util do
   end
 
   defp parse_arrow("<->"), do: :bidirectional
-
   defp parse_arrow("->"), do: :unidirectional
 
   defp parse_platform_channel_pair(input) when is_binary(input) do

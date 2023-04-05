@@ -2,7 +2,6 @@ defmodule Starbridge.Server do
   use GenServer
   require Starbridge.Logger, as: Logger
 
-  # association argument is a map of %{channel_name: [{:platform, channel_identifier}]}?
   def register(name, server) do
     Logger.debug(name <> " client registered")
 
@@ -15,7 +14,7 @@ defmodule Starbridge.Server do
 
   def start_link(_) do
     recasts = File.read!(".recast")
-    recasts = Starbridge.Util.parse_recast(recasts)
+    |> Starbridge.Util.parse_recast
 
     GenServer.start_link(__MODULE__, %{ recasts: recasts, clients: [] }, name: __MODULE__)
   end
