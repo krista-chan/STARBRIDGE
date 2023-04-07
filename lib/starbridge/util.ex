@@ -11,6 +11,7 @@ defmodule Starbridge.Util do
         :bidirectional -> [{lhs, rhs}, {rhs, lhs}]
       end
     end)
+    |> Enum.dedup()
     |> Enum.group_by(
       fn {{platform, _}, _} -> platform end,
       fn {{_, src_channel}, rhs} -> {src_channel, rhs} end
