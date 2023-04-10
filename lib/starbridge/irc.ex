@@ -20,7 +20,7 @@ defmodule Starbridge.IRC do
   @impl true
   def handle_info({:connected, _, _}, client) do
     Logger.debug("Connected to IRC server")
-    ExIRC.Client.logon client, env(:irc_password), "STARBRIDGE", "STARBRIDGE", "*BRIDGE"
+    ExIRC.Client.logon client, env(:irc_password), env(:irc_nickname), env(:irc_username), env(:irc_realname)
 
     {:noreply, client}
   end

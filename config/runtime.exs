@@ -21,6 +21,9 @@ config :starbridge,
   irc_address: env!("IRC_ADDRESS", :string!),
   irc_password: env!("IRC_PASSWORD", :string, ""), # complains when nil, error in ExIRC
   irc_port: env!("IRC_PORT", :integer, 6667),
+  irc_nickname: env!("IRC_NICKNAME", :string, "STARBRIDGE"),
+  irc_username: env!("IRC_USERNAME", :string, "STARBRIDGE"),
+  irc_realname: env!("IRC_REALNAME", :string, "*BRIDGE"),
 
   discord_channels: env!("DISCORD_CHANNELS", :string),
 
