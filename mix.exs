@@ -30,6 +30,7 @@ defmodule Starbridge.MixProject do
       k == "DISCORD_ENABLED"
     end)
     |> String.split("=")
+    |> IO.inspect()
 
     run_discord = !!String.to_existing_atom(val)
 

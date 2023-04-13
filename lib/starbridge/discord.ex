@@ -37,7 +37,7 @@ defmodule Starbridge.Discord do
       if !msg.author.bot do
         channels = Env.env(:discord_channels)
         |> String.split(",")
-        |> Enum.map(&String.to_integer/1)
+        |> Enum.map(fn s -> String.trim(s) |> String.to_integer end)
 
         if channels |> Enum.member?(msg.channel_id) do
           channel = Nostrum.Api.get_channel!(msg.channel_id)

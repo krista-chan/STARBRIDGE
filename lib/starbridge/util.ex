@@ -61,7 +61,7 @@ defmodule Starbridge.Util do
     def parse_channels(input) do
       input
       |> String.split(",")
-      |> Enum.map(fn i -> parse_channel(i) end)
+      |> Enum.map(fn i -> String.trim(i) |> parse_channel end)
     end
 
     def parse_channel("#" <> name), do: {"#" <> name, nil}
