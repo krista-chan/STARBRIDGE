@@ -17,8 +17,8 @@ config :starbridge,
   discord_enabled: env!("DISCORD_ENABLED", :string, false),
   matrix_enabled: env!("MATRIX_ENABLED", :string, false),
 
-  irc_channels: env!("IRC_CHANNELS", :string!),
-  irc_address: env!("IRC_ADDRESS", :string!),
+  irc_channels: env!("IRC_CHANNELS", :string),
+  irc_address: env!("IRC_ADDRESS", :string),
   irc_password: env!("IRC_PASSWORD", :string, ""), # complains when nil, error in ExIRC
   irc_port: env!("IRC_PORT", :integer, 6667),
   irc_nickname: env!("IRC_NICKNAME", :string, "STARBRIDGE"),
