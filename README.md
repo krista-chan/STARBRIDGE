@@ -6,6 +6,23 @@
 
 ---
 
+*BRIDGE – /stɑɹbɹɪd͡ʒ/ – is an application that can receive and then broadcast chat messages to and from different sources and targets (a source and a target being somewhere chat messages can be sent to)
+
+It is written to be extensible and provides the ability to easily implement new clients for different messaging platforms
+
+Currently implemented clients
+
+- IRC
+- Discord
+
+Clients in the works
+
+- Matrix
+
+If you want to see any new clients, or you find there to be lacking features, feel free to open an issue and provide details on what you want added
+
+---
+
 ## Usage
 
 1. Create and then populate the `.env` with relevant keys and values detailed in the [`default.env`](default.env)
