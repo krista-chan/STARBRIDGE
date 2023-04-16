@@ -34,7 +34,12 @@ defmodule Starbridge.Discord do
 
       discord_status = Env.env(:discord_status)
       if !is_nil(discord_status) do
-        Nostrum.Api.update_status(:online, discord_status)
+        status_type_var = Env.env(:discord_status_type)
+        status_type = case Starbridge.Util.status_type(status_type_var) do
+          :error -> 0
+          n -> n
+        end
+        Nostrum.Api.update_status(:online, discord_status, status_type)
         Logger.debug("Using discord status \"#{discord_status}\"")
       end
     end

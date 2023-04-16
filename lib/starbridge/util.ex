@@ -8,6 +8,16 @@ defmodule Starbridge.Util do
     |> String.replace("$server", server)
   end
 
+  def status_type(type) do
+    case type do
+      "playing" -> 0
+      "streaming" -> 1
+      "listening" -> 2
+      "watching" -> 3
+      _ -> :error
+    end
+  end
+
   def parse_recast(input) do
     input
     |> String.trim()
