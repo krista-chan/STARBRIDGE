@@ -14,8 +14,8 @@ defmodule Starbridge.Discord do
   end
 
   @impl true
-  def handle_cast({:send_message, {serv_name, src_channel, target_channel, content, nick}}, client) do
-    Nostrum.Api.create_message(target_channel |> String.to_integer, "<#{nick} #{src_channel} @ #{serv_name}> " <> content)
+  def handle_cast({:send_message, {target_channel, content}}, client) do
+    Nostrum.Api.create_message(target_channel |> String.to_integer, content)
 
     {:noreply, client}
   end
@@ -31,6 +31,12 @@ defmodule Starbridge.Discord do
     def handle_event({:READY, client, _}) do
       Logger.debug("Logged in as #{client.user.username}##{client.user.discriminator} (#{client.user.id})")
       Server.register("discord", Starbridge.Discord)
+
+      discord_status = Env.env(:discord_status)
+      if !is_nil(discord_status) do
+        Nostrum.Api.update_status(:online, discord_status)
+        Logger.debug("Using discord status \"#{discord_status}\"")
+      end
     end
 
     def handle_event({:MESSAGE_CREATE, msg, _}) do

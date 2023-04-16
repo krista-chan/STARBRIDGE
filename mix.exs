@@ -24,15 +24,16 @@ defmodule Starbridge.MixProject do
   defp deps do
     ["DISCORD_ENABLED", val] = File.read!(".env")
     |> String.split(~r/(\n|\r\n)/)
+    |> Enum.reject(fn e -> String.length(e) == 0 end)
     |> Enum.find(fn ent ->
       {k,_v} = String.split(ent, "=")
       |> List.to_tuple()
       k == "DISCORD_ENABLED"
     end)
     |> String.split("=")
-    |> IO.inspect()
 
     run_discord = !!String.to_existing_atom(val)
+    |> IO.inspect
 
     [
       {:nostrum, "~> 0.6.1", runtime: run_discord},

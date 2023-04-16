@@ -11,8 +11,7 @@ config :nostrum,
   ]
 
 config :starbridge,
-  # maybe use enabled string or something idk this is really long
-  # $(client:string enabled:boolean),* $(,)? maybe
+  display: env!("DISPLAY_STRING", :string, "<$author $channel @ $server> $content"),
   irc_enabled: env!("IRC_ENABLED", :string, "false"),
   discord_enabled: env!("DISCORD_ENABLED", :string, "false"),
   matrix_enabled: env!("MATRIX_ENABLED", :string, "false"),
@@ -26,6 +25,7 @@ config :starbridge,
   irc_realname: env!("IRC_REALNAME", :string, "*BRIDGE"),
 
   discord_channels: env!("DISCORD_CHANNELS", :string),
+  discord_status: env!("DISCORD_STATUS", :string, nil),
 
   matrix_address: env!("MATRIX_ADDRESS", :string),
   matrix_rooms: env!("MATRIX_ROOMS", :string),

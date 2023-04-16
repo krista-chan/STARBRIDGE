@@ -1,6 +1,8 @@
 defmodule Starbridge.Server do
   use GenServer
   require Starbridge.Logger, as: Logger
+  import Starbridge.Util
+  alias Starbridge.Env
 
   def register(name, server) do
     Logger.debug(name <> " client registered")
@@ -59,7 +61,8 @@ defmodule Starbridge.Server do
 
     Enum.map(all_registered, fn {platform, target_channel} ->
       {_, server} = Enum.find(clients, fn {p, _} -> p == platform end)
-      GenServer.cast(server, {:send_message, {serv_name, channel, target_channel, content, nick}})
+      content = format_content(Env.env(:display), nick, channel, serv_name, content)
+      GenServer.cast(server, {:send_message, {target_channel, content}})
     end)
   end
 end

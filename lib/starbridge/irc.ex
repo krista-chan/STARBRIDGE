@@ -65,9 +65,8 @@ defmodule Starbridge.IRC do
   end
 
   @impl true
-  def handle_cast({:send_message, {serv_name, src_channel, target_channel, content, nick}}, client) do
-    cont = "<#{nick} #{src_channel} @ #{serv_name}> " <> content
-    send_message(client, target_channel, cont)
+  def handle_cast({:send_message, {target_channel, content}}, client) do
+    send_message(client, target_channel, content)
     {:noreply, client}
   end
 

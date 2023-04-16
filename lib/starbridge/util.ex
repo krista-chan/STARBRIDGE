@@ -1,5 +1,13 @@
 defmodule Starbridge.Util do
 
+  def format_content(display_string, author, channel, server, content) do
+    display_string
+    |> String.replace("$author", author)
+    |> String.replace("$channel", channel)
+    |> String.replace("$content", content)
+    |> String.replace("$server", server)
+  end
+
   def parse_recast(input) do
     input
     |> String.trim()
